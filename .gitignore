@@ -1,0 +1,6 @@
+
+*__pycache__*
+venv
+.idea
+database_path.txt
+*.html
