@@ -45,8 +45,9 @@ class Dialog_import(wx.Dialog):
         self.dp_dateEnd = wx.adv.DatePickerCtrl(self,  size = (100,30))
         self.cb_onlyStartDate = wx.CheckBox(self, label="Import only start date")
 
-        date = startDate.split('-')
-        self.dp_dateStart.SetValue(wx.DateTime(day=int(date[2]) + 1, month=int(date[1]) - 1, year=int(date[0])))
+        if not startDate == None:
+            date = startDate.split('-')
+            self.dp_dateStart.SetValue(wx.DateTime(day=int(date[2]) + 1, month=int(date[1]) - 1, year=int(date[0])))
 
 
         l_start = wx.StaticText(self, -1, "Start date: ")

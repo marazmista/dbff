@@ -116,7 +116,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.configure, item_configure)
         self.Bind(wx.EVT_MENU, self.importData, item_import)
         self.Bind(wx.EVT_MENU, self.dotest, item_tests)
-        self.Bind(wx.EVT_MENU, self.closeAapp, item_exit)
+        self.Bind(wx.EVT_MENU, self.closeApp, item_exit)
         self.Bind(wx.EVT_MENU, self.plotWeight, item_plotWeight)
         self.Bind(wx.EVT_MENU, self.plotRestingHr, item_plotRestingHr)
 
@@ -191,8 +191,12 @@ class MainFrame(wx.Frame):
 
     def importData(self, arg):
 
+        if (self.mainList.ItemCount > 0):
+            startDate = self.mainList.GetItem(0).GetText()
+        else:
+            startDate = None
 
-        dialogImport = Dialog_import(self.mainList.GetItem(0).GetText())
+        dialogImport = Dialog_import(startDate)
         result = dialogImport.ShowModal()
 
         if dialogImport.importFinished:
@@ -285,7 +289,7 @@ class MainFrame(wx.Frame):
 
         self.pm.plotSleep(sleepData)
 
-    def closeAapp(self, event):
+    def closeApp(self, event):
         self.Close(True)
 
     def onCloseWindow(self, event):
