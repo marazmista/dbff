@@ -60,8 +60,40 @@ class PlotManager:
 
         show(p)
 
+    def plotHeartrateZones(self, hrZonesData):
+        zones = ['Fat Burn', 'Cardio', 'Peak']
+        dates = hrZonesData["date"].tolist()[::-1]
+        colors = [ "#ffb319", "#ff8c19", "#e60013"]
+        # "#6eff19",
+
+        data = {'date' : dates,
+                'Peak': hrZonesData["peak"].tolist()[::-1],
+                'Cardio': hrZonesData["cardio"].tolist()[::-1],
+                'Fat Burn': hrZonesData["fatBurn"].tolist()[::-1]}
+
+        # p = figure(x_range=dates, title="Sleep stages", width=sleepData.shape[0] * 30, sizing_mode='scale_height', tools="hover", tooltips="@date: $name @$name min")
+        p = figure(x_range=dates, title="HR zones", width=2000, sizing_mode='stretch_both', tools="hover", tooltips="@date: $name @$name min")
+
+        p.vbar_stack(zones, x='date', width=0.9 ,color=colors, source=data)
+
+        p.xgrid.grid_line_color = None
+        p.axis.minor_tick_line_color = None
+        p.outline_line_color = None
+        p.background_fill_color = self.bgColor
+        p.ygrid.grid_line_alpha = 0.25
+        p.xgrid.grid_line_alpha = 0.25
+        p.yaxis.minor_tick_line_color = None
+
+        p.legend.location = "top_left"
+        p.legend.orientation = "horizontal"
+
+        show(p)
+
+
+
+
     def plotSleepStages(self, sleepData):
-        p = self.createFigure("Sleep stages", '%Y-%m-%d')
+        # p = self.createFigure("Sleep stages", '%Y-%m-%d')
         # sleepData["date"] = pd.to_datetime(sleepData["date"], format='%Y-%m-%d', errors='ignore')
 
         stages =['Deep',  "Light" , 'REM','Awake']

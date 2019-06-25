@@ -49,6 +49,9 @@ class DatabaseManager:
     # def saveAccessTokenToDatabase(self, accessToken):
     #     self.execute('insert into accountSettings (accessToken) values (?)', [accessToken])
 
+    def getHeartrateZonesData(self):
+        return self.query("select date, outOfRange, fatBurn, cardio, peak from heartZonesDataSummary join days on days.ID = heartZonesDataSummary.ID_DAY order by days.ID desc limit 30", None)
+
     def getWeight(self):
         return self.query("select days.date, weight.weight from weight join days on days.ID = weight.ID_DAY order by days.ID", None)
 
