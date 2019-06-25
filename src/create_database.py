@@ -55,6 +55,13 @@ def createDatabase(path):
               "sum(case when ID_LEVEL == 4 then durationInSec else 0 end) / 60 as sumDeep from sleepLevels GROUP by ID_SLEEP")
 
 
+    c.execute("CREATE VIEW heartZonesDataSummary as select ID_DAY, "
+              "sum(case  when ID_ZONE = 1 then minutes else 0 end) as outOfRange, "
+              "sum(case  when ID_ZONE = 2 then minutes else 0 end) as fatBurn, "
+              "sum(case  when ID_ZONE = 3 then minutes else 0 end) as cardio, "
+              "sum(case  when ID_ZONE = 4 then minutes else 0 end) as peak from heartZonesData group by ID_DAY")
+
+
     conn.commit()
     conn.close()
 
