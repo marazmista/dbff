@@ -196,7 +196,7 @@ class MainFrame(wx.Frame):
         result = dialogImport.ShowModal()
 
         if dialogImport.importFinished:
-            self.mainList.ClearAll()
+            self.mainList.DeleteAllItems()
             self.loadDaysTable()
 
         dialogImport.Destroy()
