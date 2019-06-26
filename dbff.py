@@ -179,7 +179,7 @@ class MainFrame(wx.Frame):
             endDt = datetime.datetime.strptime(sleepData.iloc[-1,:]["dateTime"][:-4], "%Y-%m-%dT%H:%M:%S")
             end = endDt + datetime.timedelta(seconds=int(sleepData.iloc[-1,:]["durationInSec"]))
 
-            self.mainList.SetStringItem(i, 3, start + " - " + end.strftime("%H:%M:%S") + " ("+"{0:.0f}".format(sleepSum / 60) + "h " + str(sleepSum % 60) + "m)")
+            self.mainList.SetStringItem(i, 3, start + " - " + end.strftime("%H:%M:%S") + " ("+str(int(sleepSum / 60)) + "h " + str(sleepSum % 60) + "m)")
 
             self.mainList.SetStringItem(i, 4, str(row["efficiency"]))
 
