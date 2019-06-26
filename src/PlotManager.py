@@ -21,6 +21,15 @@ class PlotManager:
     primaryColor = '#6666ff'
     secondaryColor = '#66ff99'
 
+    colorSleepAwake = "#e73360"
+    colorSleepRem = "#7ec4ff"
+    colorSleepLight = "#3f8dff"
+    colorSleepDeep = "#154ba6"
+
+    colorZoneFatBurn = "#ffb319"
+    colorZoneCardio = "#ff8c19"
+    colorZonePeak = "#e60013"
+
     def createFigure(self, title, timeFormat):
         sizeMode = "stretch_both"
         # plot_width = 6000,
@@ -63,7 +72,7 @@ class PlotManager:
     def plotHeartrateZones(self, hrZonesData):
         zones = ['Fat Burn', 'Cardio', 'Peak']
         dates = hrZonesData["date"].tolist()[::-1]
-        colors = [ "#ffb319", "#ff8c19", "#e60013"]
+        colors = [ self.colorZoneFatBurn, self.colorZoneCardio, self.colorZonePeak]
         # "#6eff19",
 
         data = {'date' : dates,
@@ -98,7 +107,7 @@ class PlotManager:
 
         stages =['Deep',  "Light" , 'REM','Awake']
         dates = sleepData["date"].tolist()[::-1]
-        colors = ["#154ba6", "#3f8dff", "#7ec4ff", "#e73360"]
+        colors = [  self.colorSleepDeep,self.colorSleepLight , self.colorSleepRem, self.colorSleepAwake ]
 
         data = {'date': dates,
                 'Awake': sleepData["sumAwake"].tolist()[::-1],
