@@ -14,6 +14,8 @@ import locale
 import os.path
 from src.PlotManager import *
 from src.create_database import *
+import time
+
 
 class MainFrame(wx.Frame):
     def __init__(self, title, size):
@@ -34,6 +36,9 @@ class MainFrame(wx.Frame):
         self.mainList.InsertColumn(2, "Sleep HR (avg, min, max)")
         self.mainList.InsertColumn(3, "Sleep")
         self.mainList.InsertColumn(4, "Efficiency")
+
+        self.mainList.SetColumnWidth(0,150)
+        self.mainList.SetColumnWidth(3,170)
 
 
         box_main.Add(self.mainList, 1, wx.EXPAND | wx.ALL, 10)
@@ -167,9 +172,11 @@ class MainFrame(wx.Frame):
         sleepStartEnd = self.dbMan.getMainListSleepData()
 
         for i, row in self.mainListData.iterrows():
-            self.mainList.InsertItem(i, row["date"])
-            self.mainList.SetStringItem(i, 1, str(row["restingHr"]))
-            self.mainList.SetStringItem(i, 2, str(row["averageHr"]) + " (" + str(row["minHr"]) + "/" + str(row["maxHr"]) + ")")
+            dt = datetime.datetime.strptime(row["date"], "%Y-%m-%d")
+
+            self.mainList.InsertItem(i, dt.strftime("%Y-%m-%d %A "))
+            self.mainList.SetItem(i, 1, str(row["restingHr"]))
+            self.mainList.SetItem(i, 2, str(row["averageHr"]) + " (" + str(row["minHr"]) + "/" + str(row["maxHr"]) + ")")
 
             sleepSum = row["sumRem"] + row["sumLight"] + row["sumDeep"]
 
@@ -179,9 +186,9 @@ class MainFrame(wx.Frame):
             endDt = datetime.datetime.strptime(sleepData.iloc[-1,:]["dateTime"][:-4], "%Y-%m-%dT%H:%M:%S")
             end = endDt + datetime.timedelta(seconds=int(sleepData.iloc[-1,:]["durationInSec"]))
 
-            self.mainList.SetStringItem(i, 3, start + " - " + end.strftime("%H:%M:%S") + " ("+str(int(sleepSum / 60)) + "h " + str(sleepSum % 60) + "m)")
+            self.mainList.SetItem(i, 3, start + " - " + end.strftime("%H:%M:%S") + " ("+str(int(sleepSum / 60)) + "h " + str(sleepSum % 60) + "m)")
 
-            self.mainList.SetStringItem(i, 4, str(row["efficiency"]))
+            self.mainList.SetItem(i, 4, str(row["efficiency"]))
 
 
     def configure(self, arg):
@@ -191,8 +198,8 @@ class MainFrame(wx.Frame):
 
     def importData(self, arg):
 
-        if (self.mainList.ItemCount > 0):
-            startDate = self.mainList.GetItem(0).GetText()
+        if (self.mainListData["date"].count() > 0):
+            startDate = self.mainListData["date"][0]
         else:
             startDate = None
 
