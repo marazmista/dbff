@@ -12,6 +12,7 @@ import wx.adv
 from src.DataDownloader import *
 from src.DatabaseManager import *
 import pandas as pd
+import datetime
 
 class Dialog_import(wx.Dialog):
 
@@ -89,8 +90,11 @@ class Dialog_import(wx.Dialog):
         self.SetSizer(box_main)
 
 
-
     def importData(self, args):
+        valid, dateStart, dateEnd = self.checkDatesValidity(self.dp_dateStart.GetValue().Format("%Y-%m-%d"), self.dp_dateEnd.GetValue().Format("%Y-%m-%d"))
+        if not valid:
+            return
+
         dd = DataDownloader()
         dbMan = DatabaseManager()
 
@@ -109,16 +113,7 @@ class Dialog_import(wx.Dialog):
             return
 
 
-        startDate = self.dp_dateStart.GetValue().Format("%Y-%m-%d")
-
-        if self.cb_onlyStartDate.IsChecked():
-            endDate = startDate
-        else:
-            endDate = self.dp_dateEnd.GetValue().Format("%Y-%m-%d")
-
-        dates = pd.date_range(startDate, endDate, freq='D').strftime('%Y-%m-%d')
-
-
+        dates = pd.date_range(dateStart, dateEnd, freq='D').strftime('%Y-%m-%d')
         for d in dates:
             if self.cb_importHr.IsChecked():
                 self.txt_logOutput.AppendText(dd.saveHeartrateToDatabase(d) + "\n")
@@ -139,6 +134,26 @@ class Dialog_import(wx.Dialog):
         self.txt_logOutput.AppendText("Finished")
         self.importFinished = True
 
+    def checkDatesValidity(self, dateStart, dateEnd):
+
+        dtStart = datetime.datetime.strptime(dateStart, "%Y-%m-%d")
+        dtEnd = datetime.datetime.strptime(dateStart, "%Y-%m-%d")
+
+        if dtStart.date() >= datetime.date.today() and (self.cb_importHr.IsChecked() or self.cb_importSteps.IsChecked()):
+            dlg = wx.MessageDialog(self, 'Cannot import heartrate and steps before end of the day.', "Error")
+            dlg.ShowModal()
+            dlg.Destroy()
+
+            return False, '', ''
+
+        if dtEnd.date() > datetime.date.today():
+            return False, '', ''
+
+
+        if self.cb_onlyStartDate.IsChecked() or dtStart > dtEnd:
+            dateEnd = dateStart
+
+        return True, dateStart, dateEnd
 
 
     def close(self, args):
