@@ -48,43 +48,81 @@ class DataDownloader:
         return self.getData(url)
 
     def checkTokenStatus(self, token):
+        # return status:  0 - ok, 1 - not ok, 2 - too many requests
+
         if not token:
-            return False
+            return 1, 'No token'
 
         url = 'https://api.fitbit.com/1.1/oauth2/introspect'
 
         statusData = self.getData(url)
-        if not statusData:
-            return True
+        status = not statusData
+
+        if status:
+            return 0, 'Token OK'
 
         if statusData == "Too Many Requests":
-            return False
+            return 2, statusData
 
         data = json.loads(statusData)
 
         if data["success"] == False and data["errors"][0]["errorType"] == "expired_token":
-            return False
+            return 1, "Token expired"
 
-        return True
+        return 0, "Token OK"
 
     def refreshToken(self, clientId, clientSecret, refreshToken):
+        success = False
+        msg = ''
+
         encodedSecrets = base64.b64encode((clientId + ":" + clientSecret).encode("utf8"))
 
         headers = { 'Authorization': 'Basic ' + str(encodedSecrets,"utf8") }
         params = { "grant_type" : "refresh_token", "refresh_token" : refreshToken }
 
-        aaa =requests.post("https://api.fitbit.com/oauth2/token", headers=headers, data=params)
-        return aaa
+        response = requests.post("https://api.fitbit.com/oauth2/token", headers=headers, data=params)
+        success = self.isResponseOk(response)
 
+        if not success:
+            msg = self.getErrorFromResponse(response)
+        else:
+            msg = "Token refreshed"
+
+            tokens = json.loads(response.text)
+            self.dbMan.saveTokens(tokens["access_token"], tokens["refresh_token"])
+
+        return success, msg
+
+    def refreshToken2(self):
+        clientInfo = self.dbMan.query("select clientId, clientSecret, refreshToken from accountSettings where ID = 1", None)
+        return self.refreshToken(clientInfo["clientId"][0], clientInfo["clientSecret"][0], clientInfo["refreshToken"][0])
 
     def getTokens(self, clientId, clientSecret, code, redirectUri):
+        success = False
+        msg = ''
+
         encodedSecrets = base64.b64encode((clientId + ":" + clientSecret).encode("utf8"))
 
         headers = { 'Authorization': 'Basic ' + str(encodedSecrets,"utf8") }
         params = {"grant_type": "authorization_code", "code": code, "client_id" : clientId, "redirect_uri" : redirectUri }
 
-        return requests.post("https://api.fitbit.com/oauth2/token", headers=headers, data=params)
+        response = requests.post("https://api.fitbit.com/oauth2/token", headers=headers, data=params)
+        success = self.isResponseOk(response)
 
+        if not success:
+            msg = json.loads(response.text)["errors"][0]["message"]
+        else:
+            msg = "Tokens saved"
+            tokens = json.loads(response.text)
+            self.dbMan.saveTokens(tokens["access_token"], tokens["refresh_token"])
+
+        return success, msg
+
+    def getErrorFromResponse(self, response):
+        return json.loads(response.text)["errors"][0]["message"]
+
+    def isResponseOk(self, response):
+       return response.status_code == 200
 
     def saveToFile(self, date, contents):
         file = open(date + '.json', 'w')

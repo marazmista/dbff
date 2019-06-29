@@ -81,16 +81,9 @@ class Dialog_configuration(wx.Dialog):
             return
 
         dd = DataDownloader()
-        response = dd.refreshToken(self.txt_clientId.GetValue(), self.txt_clientSecret.GetValue(), token)
+        refreshOk, msg = dd.refreshToken(self.txt_clientId.GetValue(), self.txt_clientSecret.GetValue(), token)
 
-        if not self.checkResponse(response):
-            return
-
-        tokens = json.loads(response.text)
-        self.dbManager.saveTokens(tokens["access_token"], tokens["refresh_token"])
-
-        dlg = wx.MessageDialog(None, 'Token refreshed.',
-                               'Token status', wx.OK | wx.ICON_ERROR)
+        dlg = wx.MessageDialog(None, msg, 'Token', wx.OK | wx.ICON_INFORMATION)
         dlg.ShowModal()
         dlg.Destroy()
 
@@ -108,22 +101,13 @@ class Dialog_configuration(wx.Dialog):
             code = code[code.find("code=") + 5 : code.find("#")]
 
         dd = DataDownloader()
-        response = dd.getTokens(self.txt_clientId.GetValue(), self.txt_clientSecret.GetValue(), code, self.txt_redirectUri.GetValue())
+        refreshOk, msg = dd.getTokens(self.txt_clientId.GetValue(), self.txt_clientSecret.GetValue(), code, self.txt_redirectUri.GetValue())
 
-        if not self.checkResponse(response):
-            return
+        dlg = wx.MessageDialog(None, msg, 'Token', wx.OK | wx.ICON_INFORMATION)
+        dlg.ShowModal()
+        dlg.Destroy()
 
-        tokens = json.loads(response.text)
-        self.dbManager.saveTokens(tokens["access_token"], tokens["refresh_token"])
 
-    def checkResponse(self, response):
-        if response.status_code != 200:
-            dlg = wx.MessageDialog(None, json.loads(response.text)["errors"][0]["message"], 'Error', wx.OK | wx.ICON_ERROR)
-            result = dlg.ShowModal()
-            dlg.Destroy()
-            return False
-
-        return True
 
     def openAuthPage(self, arg):
         webbrowser.open("https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=" + self.txt_clientId.GetValue() +

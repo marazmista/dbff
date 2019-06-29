@@ -94,9 +94,20 @@ class Dialog_import(wx.Dialog):
         dd = DataDownloader()
         dbMan = DatabaseManager()
 
-        if not dd.checkTokenStatus(dbMan.getAccessToken()):
-            self.txt_logOutput.AppendText("Token expired or too many requests.")
+        tokenStatus, msg = dd.checkTokenStatus(dbMan.getAccessToken())
+        self.txt_logOutput.AppendText(msg + "\n")
+
+        if tokenStatus == 1:
+
+            success, msg = dd.refreshToken2()
+            self.txt_logOutput.AppendText(msg + "\n")
+
+            if not success:
+                self.txt_logOutput.AppendText(msg + "\n")
+
+        elif tokenStatus == 2:
             return
+
 
         startDate = self.dp_dateStart.GetValue().Format("%Y-%m-%d")
 
