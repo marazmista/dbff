@@ -4,6 +4,7 @@ work in progress
 
 ##### Dependencies:
 * python3
+* wxPython
 * pandas
 * sqlite
 * bokeh (https://bokeh.pydata.org/)
