@@ -74,17 +74,24 @@ class MainFrame(wx.Frame):
         item_plotHrSleep = wx.MenuItem(popupMenu, wx.ID_ANY, "Plot heartrate and sleep")
         item_plotHrSteps = wx.MenuItem(popupMenu, wx.ID_ANY, "Plot heartrate and steps")
 
+        item_noteDay = wx.MenuItem(popupMenu, wx.ID_ANY, "Add day note")
+        item_noteSleep = wx.MenuItem(popupMenu, wx.ID_ANY, "Add sleep note")
+
         popupMenu.Append(item_plotHr)
         popupMenu.Append(item_plotSleep)
         popupMenu.Append(item_plotSteps)
         popupMenu.Append(item_plotHrSleep)
         popupMenu.Append(item_plotHrSteps)
+        popupMenu.Append(item_noteDay)
+        popupMenu.Append(item_noteSleep)
 
         self.Bind(wx.EVT_MENU, self.plotHeartrate, item_plotHr)
         self.Bind(wx.EVT_MENU, self.plotSleep, item_plotSleep)
         self.Bind(wx.EVT_MENU, self.plotSteps, item_plotSteps)
         self.Bind(wx.EVT_MENU, self.plotHrSleep, item_plotHrSleep)
         self.Bind(wx.EVT_MENU, self.plotHrSteps, item_plotHrSteps)
+        self.Bind(wx.EVT_MENU, self.addDayNote, item_noteDay)
+        self.Bind(wx.EVT_MENU, self.addSleepNote, item_noteSleep)
 
         self.mainList.PopupMenu(popupMenu)
 
@@ -295,6 +302,33 @@ class MainFrame(wx.Frame):
             return
 
         self.pm.plotSleep(sleepData)
+
+    def askNote(self, caption):
+        dlg = wx.TextEntryDialog(self, caption, 'Note')
+
+        if not dlg.ShowModal() == wx.ID_OK:
+            return ''
+
+        note = dlg.GetValue()
+        dlg.Destroy()
+
+        return note
+
+    def addDayNote(self, arg):
+        note = self.askNote("Day note:")
+
+        if not note:
+            return
+
+        self.dbMan.saveNote("days", note,  self.mainListData["ID"][self.mainList.GetFirstSelected()])
+
+    def addSleepNote(self, arg):
+        note = self.askNote("Sleep note:")
+
+        if not note:
+            return
+
+        self.dbMan.saveNote("sleepLog", note, self.mainListData["ID_SLEEP"][self.mainList.GetFirstSelected()])
 
     def closeApp(self, event):
         self.Close(True)

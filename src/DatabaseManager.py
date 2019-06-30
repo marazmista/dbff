@@ -122,6 +122,8 @@ class DatabaseManager:
 
         return fitibtId[0]
 
+    def saveNote(self, table, note, id):
+        self.execute("update " + table + " set note = ? where ID == ?", [note, str(id)])
 
     def saveAccountSettings(self, settings):
         self.execute("update accountSettings set fitbitId=?, clientId = ?, clientSecret = ?, redirectUri = ? where ID == 1", settings)
