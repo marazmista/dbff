@@ -47,8 +47,8 @@ class Dialog_import(wx.Dialog):
         self.cb_onlyStartDate = wx.CheckBox(self, label="Import only start date")
 
         if not startDate == None:
-            date = startDate.split('-')
-            self.dp_dateStart.SetValue(wx.DateTime(day=int(date[2]) + 1, month=int(date[1]) - 1, year=int(date[0])))
+            dtStart = datetime.datetime.strptime(startDate, "%Y-%m-%d") + datetime.timedelta(days=1)
+            self.dp_dateStart.SetValue(wx.DateTime(day=dtStart.day, month=dtStart.month - 1, year=dtStart.year))
 
 
         l_start = wx.StaticText(self, -1, "Start date: ")
@@ -148,7 +148,6 @@ class Dialog_import(wx.Dialog):
 
         if dtEnd.date() > datetime.date.today():
             return False, '', ''
-
 
         if self.cb_onlyStartDate.IsChecked() or dtStart > dtEnd:
             dateEnd = dateStart
